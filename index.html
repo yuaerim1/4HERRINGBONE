@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>해링본 패턴 애니메이션</title>
+  <style>
+    .herringbone {
+      width: 400px;
+      height: 400px;
+      background-color: #fff;
+      background-image:
+        repeating-linear-gradient(45deg, transparent 0 20px, #000 20px 40px),
+        repeating-linear-gradient(-45deg, transparent 0 20px, #000 20px 40px);
+      background-size: 40px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pattern {
+      width: 50px;
+      height: 50px;
+      background-color: #fff;
+      background-image:
+        repeating-linear-gradient(45deg, transparent 0 10px, #000 10px 20px),
+        repeating-linear-gradient(-45deg, transparent 0 10px, #000 10px 20px);
+      background-size: 20px 20px;
+      position: absolute;
+    }
+  </style>
+</head>
+<body>
+  <div class="herringbone"></div>
+
+  <script>
+    const herringboneContainer = document.querySelector('.herringbone');
+    const patternCount = 20;
+    const patterns = [];
+    const friction = 0.9; // 마찰력 계수 (0 ~ 1 사이의 값)
+
+    // 랜덤 위치에 패턴 생성
+    for (let i = 0; i < patternCount; i++) {
+      const pattern = document.createElement('div');
+      pattern.classList.add('pattern');
+      const x = Math.random() * (herringboneContainer.offsetWidth - 50);
+      const y = Math.random() * (herringboneContainer.offsetHeight - 50);
+      pattern.style.left = `${x}px`;
+      pattern.style.top = `${y}px`;
+      pattern.velocity = { x: 0, y: 0 }; // 초기 속도
+      herringboneContainer.appendChild(pattern);
+      patterns.push(pattern);
+    }
+
+    // 패턴 움직이기
+    function movePatterns() {
+      patterns.forEach(pattern => {
+        // 속도 업데이트
+        const dx = Math.random() * 2 - 1; // -1 ~ 1 사이의 랜덤 값
+        const dy = Math.random() * 2 - 1;
+        pattern.velocity.x += dx;
+        pattern.velocity.y += dy;
+
+        // 위치 업데이트
+        let x = pattern.offsetLeft + pattern.velocity.x;
+        let y = pattern.offsetTop + pattern.velocity.y;
+
+        // 패턴이 컨테이너 밖으로 나가지 않도록 조정
+        if (x < 0) {
+          x = 0;
+          pattern.velocity.x *= -friction; // 반대 방향으로 반사
+        } else if (x + 50 > herringboneContainer.offsetWidth) {
+          x = herringboneContainer.offsetWidth - 50;
+          pattern.velocity.x *= -friction;
+        }
+
+        if (y < 0) {
+          y = 0;
+          pattern.velocity.y *= -friction;
+        } else if (y + 50 > herringboneContainer.offsetHeight) {
+          y = herringboneContainer.offsetHeight - 50;
+          pattern.velocity.y *= -friction;
+        }
+
+        pattern.style.left = `${x}px`;
+        pattern.style.top = `${y}px`;
+
+        // 속도 감소
+        pattern.velocity.x *= friction;
+        pattern.velocity.y *= friction;
+      });
+
+      requestAnimationFrame(movePatterns);
+    }
+
+    movePatterns();
+  </script>
+</body>
+</html>
